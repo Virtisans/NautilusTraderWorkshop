@@ -1,0 +1,14 @@
+[project]
+name = "nautilustrader-practice"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "nautilus-trader>=1.221.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
+    "nbconvert>=7.16.6",
+    "pandoc>=2.4",
+]
