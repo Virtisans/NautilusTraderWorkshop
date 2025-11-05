@@ -66,8 +66,8 @@ class SFRAStrategy(Strategy):
             callback=self.check_position,
         )
 
-    def on_bar(self, bar: Bar) -> None:
-        self.log.info(repr(bar), LogColor.CYAN)
+    # def on_bar(self, bar: Bar) -> None:
+    #     self.log.info(repr(bar), LogColor.CYAN)
 
     def make_order(self, _: TimeEvent):
         # https://nautilustrader.io/docs/latest/concepts/cache#accessing-market-data
@@ -115,7 +115,6 @@ class SFRAStrategy(Strategy):
         self.submit_order(future_order, position_id)
 
     def check_position(self, _: TimeEvent):
-        """ """
         all_positions = self.cache.positions()
         for position in all_positions:
             self.log.info(repr(position), LogColor.YELLOW)
@@ -209,23 +208,7 @@ def main():
     node = BacktestNode(configs=[config])
 
     node.run()
-    # engine = node.get_engines()[0]
-    # trader = engine.trader
-    # trader.generate_orders_report().to_csv("reports/orders_report.csv")
-    # trader.generate_positions_report().to_csv("reports/positions_report.csv")
-    # trader.generate_account_report(BINANCE_VENUE).to_csv(
-    #     "reports/BINANCE_account_report.csv"
-    # )
-    # engine.trader.generate_account_report(Venue("BINANCE_FUTURES")).to_csv(
-    #     "reports/BINANCE_FUTURES_account_report.csv"
-    # )
-    # portfolio = engine.portfolio
-    # print("=========================RESULT============================")
-    # print(portfolio.analyzer.get_performance_stats_pnls())
-    # print(portfolio.analyzer.get_performance_stats_returns())
-    # print(portfolio.analyzer.get_performance_stats_general())
-    # print(results)
-    # print("========================RESULT============================")
+    # check out repots docs https://nautilustrader.io/docs/latest/concepts/reports
 
 
 if __name__ == "__main__":
