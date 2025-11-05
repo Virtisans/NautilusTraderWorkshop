@@ -1,5 +1,4 @@
 from nautilus_trader.persistence.catalog import ParquetDataCatalog
-from nautilus_trader.test_kit.providers import TestInstrumentProvider
 from pathlib import Path
 from nautilus_trader.model.instruments import Instrument
 from nautilus_trader.adapters.binance.common.enums import BinanceAccountType
@@ -15,24 +14,20 @@ from nautilus_trader.common.component import LiveClock
 from nautilus_trader.model import Symbol, Venue, InstrumentId, BarType
 import pandas as pd
 
-parent_dir = Path(__file__).resolve().parent.parent
-CATALOG_PATH = parent_dir / "catalog_data"
-CSV_PATH = parent_dir / "binance-csv" / "spot"
-# Or a single csv file
-# CSV_PATH = parent_dir / "binance-csv" / "spot" / "BTCUSDT-1m-2025-10.csv"
-print(parent_dir / "binance-csv" / "spot" / "BTCUSDT-1m-2025-10.csv")
 # Since Nautilus Trader BinanceSpotInstrumentProvider calls `sapi` which is not available in binance testnet. You should apply the api_key and api_secret with your real account.
-
 # 1. Update following variables
 SYMBOL = Symbol("BTCUSDT")
-VENUE = Venue("BINANCE")  # Using Binance-Futures for Future
+VENUE = Venue("BINANCE")
 STEP = 1
 AGGREGATION = "MINUTE"  # see here https://nautilustrader.io/docs/latest/concepts/data#aggregation-methods
 PRICE_TYPE = "LAST"  # usually you do not need to change this
 
-API_KEY = "YOUR OWN KEY"
-API_SECRET = "YOUR OWN SECRET"
+API_KEY = ""
+API_SECRET = ""
 
+parent_dir = Path(__file__).resolve().parent.parent
+CATALOG_PATH = parent_dir / "catalog_data"
+CSV_PATH = parent_dir / "binance-csv" / "spot"
 
 # Create a new catalog instance
 catalog = ParquetDataCatalog(CATALOG_PATH)
@@ -55,7 +50,7 @@ def getInstrument(instrument_id: InstrumentId):
         ),
     )
     binance_provider.load(instrument_id)
-    return binance_provider
+    return binance_provider.find(instrument_id)
 
 
 def write_catalog(filepath: Path, bar_type: BarType, instrument: Instrument):
@@ -113,14 +108,13 @@ def write_catalog(filepath: Path, bar_type: BarType, instrument: Instrument):
             )
             bar_data = wrangler.process(df)
             catalog.write_data(bar_data)
+    catalog.write_data([instrument])
 
 
 if __name__ == "__main__":
-    instrument_id = InstrumentId(symbol=Symbol("ETHUSDT"), venue=VENUE)
+    instrument_id = InstrumentId(symbol=SYMBOL, venue=VENUE)
     bar_type = BarType.from_str(
         f"{instrument_id.value}-{STEP}-{AGGREGATION}-{PRICE_TYPE}-EXTERNAL"
     )
-    instrument = TestInstrumentProvider.btcusdt_binance()
-    # uncomment this line to use real instrument
-    # instrument = getInstrument(instrument_id)
+    instrument = getInstrument(instrument_id)
     write_catalog(CSV_PATH, bar_type, instrument)
