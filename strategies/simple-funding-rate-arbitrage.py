@@ -36,7 +36,6 @@ from nautilus_trader.model.instruments import Instrument
 from nautilus_trader.trading.strategy import Strategy
 
 
-# Simple Funding Rate Arbitrage
 class SFRAConfig(StrategyConfig, frozen=True):
     spot_instrument_id: InstrumentId
     spot_bar_type: BarType
@@ -104,7 +103,7 @@ class SFRAStrategy(Strategy):
                 order_qty.as_decimal()
             ),  # make_qty accepts decimal or float
         )
-        # Short SELL to receive funding rate
+        # Short SELL
         position_id = PositionId(f"{self.config.future_instrument_id}-SHORT")
         future_order: MarketOrder = self.order_factory.market(
             instrument_id=self.config.future_instrument_id,
@@ -127,7 +126,7 @@ CATALOG_PATH = Path.cwd() / "catalog_data"
 
 
 def main():
-    start_date = datetime(2025, 10, 1, 0, 0, 0)
+    start_date = datetime(2025, 10, 1, 5, 0, 0)
     end_date = datetime(2025, 11, 1, 0, 0, 0)
     SPOT_SYMBOL = Symbol("BTCUSDT")
     SPOT_VENUE = BINANCE_VENUE
@@ -145,6 +144,7 @@ def main():
     futuret_bar_type = BarType.from_str(
         f"{futures_instrument_id.value}-{STEP}-{AGGREGATION}-{PRICE_TYPE}-EXTERNAL"
     )
+
     bar_spec = BarSpecification.from_str(f"{STEP}-{AGGREGATION}-{PRICE_TYPE}")
     venue_configs = [
         BacktestVenueConfig(
@@ -203,10 +203,9 @@ def main():
         venues=venue_configs,
         start=start,
         end=end,
-        chunk_size=50000,
+        chunk_size=50000,  # ！！！！！！you really should set this, unless you have enough memory.
     )
     node = BacktestNode(configs=[config])
-
     node.run()
     # check out repots docs https://nautilustrader.io/docs/latest/concepts/reports
 
