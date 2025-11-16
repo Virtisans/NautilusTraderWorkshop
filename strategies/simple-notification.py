@@ -35,12 +35,12 @@ signals = types.SimpleNamespace()
 signals.PRICE = "CURRENT_PRICE"
 
 
-class AnotherConfig(StrategyConfig, frozen=True):
+class NotifyConfig(StrategyConfig, frozen=True):
     webhook_url: str
 
 
-class AnotherStrategy(Strategy):
-    def __init__(self, config: AnotherConfig) -> None:
+class NotifyStrategy(Strategy):
+    def __init__(self, config: NotifyConfig) -> None:
         super().__init__(config)
 
     def on_start(self) -> None:
@@ -58,19 +58,18 @@ class AnotherStrategy(Strategy):
         pass
 
 
-class NotificationConfig(StrategyConfig, frozen=True):
+class TradingConfig(StrategyConfig, frozen=True):
     spot_instrument_id: InstrumentId
     spot_bar_type: BarType
 
 
-class NotificationStrategy(Strategy):
-    def __init__(self, config: NotificationConfig) -> None:
+class TradingStrategy(Strategy):
+    def __init__(self, config: TradingConfig) -> None:
         super().__init__(config)
         self.spot_instrument: Instrument = None
 
     def on_start(self) -> None:
         self.spot_instrument = self.cache.instrument(self.config.spot_instrument_id)
-        self.subscribe_signal(signals.PRICE)
         self.clock.set_timer(
             name="Notify_Feishu",
             interval=pd.Timedelta(hours=2),
@@ -81,7 +80,7 @@ class NotificationStrategy(Strategy):
         last_bar = self.cache.bar(self.config.spot_bar_type, index=0)
         self.publish_signal(
             name=signals.PRICE,
-            value=f"Symbol:{last_bar.bar_type.instrument_id.value} Price:{last_bar.close} TIME:{last_bar.ts_event} From: NotificationStrategy",  # Using same string as name for simplicity
+            value=f"Symbol:{last_bar.bar_type.instrument_id.value} Price:{last_bar.close} TIME:{last_bar.ts_event} From: TradingStrategy",  # Using same string as name for simplicity
             ts_event=timeEvent.ts_event,
         )
 
@@ -129,16 +128,16 @@ def main():
     ]
     strategies = [
         ImportableStrategyConfig(
-            strategy_path=NotificationStrategy.fully_qualified_name(),
-            config_path=NotificationConfig.fully_qualified_name(),
+            strategy_path=TradingStrategy.fully_qualified_name(),
+            config_path=TradingConfig.fully_qualified_name(),
             config={
                 "spot_instrument_id": spot_instrument_id,
                 "spot_bar_type": spot_bar_type,
             },
         ),
         ImportableStrategyConfig(
-            strategy_path=AnotherStrategy.fully_qualified_name(),
-            config_path=AnotherConfig.fully_qualified_name(),
+            strategy_path=NotifyStrategy.fully_qualified_name(),
+            config_path=NotifyConfig.fully_qualified_name(),
             config={
                 "webhook_url": "Your WEBHOOK URL",
             },
