@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "nautilus-trader>=1.221.0",
+    "requests>=2.32.5",
 ]
 
 [dependency-groups]

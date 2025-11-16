@@ -1,7 +1,8 @@
+from collections import deque
 from datetime import datetime
 from pathlib import Path
+
 import pandas as pd
-from collections import deque
 from nautilus_trader.adapters.binance import (
     BINANCE_VENUE,
 )
@@ -17,23 +18,22 @@ from nautilus_trader.config import (
     LoggingConfig,
     StrategyConfig,
 )
-from nautilus_trader.model.orders import MarketOrder
-from nautilus_trader.model.enums import OrderSide
 from nautilus_trader.core.datetime import dt_to_unix_nanos
-from nautilus_trader.model import (
-    Bar,
-    BarType,
-    BarSpecification,
-)
-from nautilus_trader.model.enums import AccountType, OmsType
-from nautilus_trader.model.identifiers import InstrumentId, Symbol
-from nautilus_trader.model.instruments import Instrument
-from nautilus_trader.trading.strategy import Strategy
 
 # Import system defined indicators
 # https://nautilustrader.io/docs/latest/api_reference/indicators
-
 from nautilus_trader.indicators import SimpleMovingAverage
+from nautilus_trader.model import (
+    Bar,
+    BarSpecification,
+    BarType,
+    InstrumentId,
+    Symbol,
+)
+from nautilus_trader.model.enums import AccountType, OmsType, OrderSide
+from nautilus_trader.model.instruments import Instrument
+from nautilus_trader.model.orders import MarketOrder
+from nautilus_trader.trading import Strategy
 
 # NOTE:
 # 1. In order to test bars aggravation, I will use 1 min golden cross to buy, 3 mins death cross to sell.
